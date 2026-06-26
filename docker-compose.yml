@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  local_mysql_db:
+    image: mysql:8.0
+    container_name: zanzibar_academy_offline_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: zanzibar_academy_2026
+      MYSQL_DATABASE: Zanzibar_academy
+      MYSQL_USER: Zanzibar_academy
+      MYSQL_PASSWORD: zanzibar_academy_2026
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_local_data:/var/lib/mysql
+
+  fastapi_core_app:
+    build: .
+    container_name: school_core_backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - local_mysql_db
+    environment:
+      - MYSQL_DATABASE_URL=mysql+pymysql://shule_dev:dev_shule_pass@local_mysql_db:3306/zanzibar_academy_local
+      - SUPABASE_URL=https://nubogicwfjvgcenmpopn.supabase.co/rest/v1/
+      - SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51Ym9naWN3Zmp2Z2Nlbm1wb3BuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0ODg5MTUsImV4cCI6MjA5ODA2NDkxNX0.pj8-OQmb_SW0WE1V9LinjdhtBGpIDaWVsovwlJ2VdHE
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  mysql_local_data:
